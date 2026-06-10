@@ -1,0 +1,46 @@
+{
+  "agents": {
+    "terisa": {
+      "created_at": "2026-06-10T01:23:25.207Z",
+      "persistent_name": "Terisa",
+      "universe": "Mordant's Need",
+      "status": "active"
+    },
+    "geraden": {
+      "created_at": "2026-06-10T01:23:25.207Z",
+      "persistent_name": "Geraden",
+      "universe": "Mordant's Need",
+      "status": "active"
+    },
+    "artagel": {
+      "created_at": "2026-06-10T01:23:25.207Z",
+      "persistent_name": "Artagel",
+      "universe": "Mordant's Need",
+      "status": "active"
+    },
+    "adept havelock": {
+      "created_at": "2026-06-10T01:23:25.207Z",
+      "persistent_name": "Adept Havelock",
+      "universe": "Mordant's Need",
+      "status": "active"
+    },
+    "myste": {
+      "created_at": "2026-06-10T01:23:25.207Z",
+      "persistent_name": "Myste",
+      "universe": "Mordant's Need",
+      "status": "active"
+    },
+    "scribe": {
+      "created_at": "2026-06-10T01:23:25.207Z",
+      "persistent_name": "Scribe",
+      "universe": "Mordant's Need",
+      "status": "active"
+    },
+    "ralph": {
+      "created_at": "2026-06-10T01:23:25.207Z",
+      "persistent_name": "Ralph",
+      "universe": "Mordant's Need",
+      "status": "active"
+    }
+  }
+}
