@@ -29,13 +29,14 @@ public sealed partial class MainWindow : Window
     private bool _closing;
     private int _lastFindIndex = -1;
 
-    private EditorTab? ActiveTab => Tabs.SelectedItem as EditorTab;
+    private EditorTab? ActiveTab => Tabs?.SelectedItem as EditorTab;
 
     public MainWindow()
     {
         InitializeComponent();
         Tabs.ItemsSource = _tabs;
         Tabs.ItemTemplate = BuildTabHeaderTemplate();
+        Tabs.SelectionChanged += Tabs_SelectionChanged;
 
         Editor.TextChanged += Editor_TextChanged;
         Editor.TextArea.Caret.PositionChanged += (_, _) => UpdateCursorStatus();
@@ -134,6 +135,11 @@ public sealed partial class MainWindow : Window
 
     private void LoadActiveTabIntoEditor()
     {
+        if (Editor is null)
+        {
+            return;
+        }
+
         var tab = ActiveTab;
         _loadingTab = true;
         try

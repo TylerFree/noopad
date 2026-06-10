@@ -128,7 +128,7 @@
       <Border Background="#FFFFFF" BorderBrush="#D9DEE7" BorderThickness="0,0,0,1">
         <DockPanel>
           <Button DockPanel.Dock="Right" Classes="icon" Content="+" ToolTip.Tip="New tab" Click="NewTab_Click" Margin="4" />
-          <TabControl x:Name="Tabs" SelectionChanged="Tabs_SelectionChanged" />
+          <TabControl x:Name="Tabs" />
         </DockPanel>
       </Border>
 
