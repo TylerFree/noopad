@@ -1,0 +1,157 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+        x:Class="Nopad.Views.MainWindow"
+        Width="1180"
+        Height="760"
+        MinWidth="820"
+        MinHeight="540"
+        Title="Nopad">
+  <Window.Styles>
+    <Style Selector="Window">
+      <Setter Property="FontFamily" Value="Inter, Segoe UI, Arial" />
+      <Setter Property="Background" Value="#F6F7F9" />
+    </Style>
+    <Style Selector="Menu">
+      <Setter Property="Background" Value="#FFFFFF" />
+    </Style>
+    <Style Selector="TabControl">
+      <Setter Property="Background" Value="#F6F7F9" />
+    </Style>
+    <Style Selector="TabItem">
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="MinHeight" Value="34" />
+    </Style>
+    <Style Selector="Button.icon">
+      <Setter Property="Width" Value="26" />
+      <Setter Property="Height" Value="26" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="TextBlock.status">
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Margin" Value="8,0" />
+      <Setter Property="Foreground" Value="#475569" />
+    </Style>
+    <Style Selector="TextBox.searchBox">
+      <Setter Property="MinWidth" Value="170" />
+      <Setter Property="Height" Value="30" />
+      <Setter Property="Margin" Value="4,0" />
+    </Style>
+  </Window.Styles>
+
+  <DockPanel>
+    <Menu DockPanel.Dock="Top">
+      <MenuItem Header="_File">
+        <MenuItem Header="_New Tab" InputGesture="Ctrl+T" Click="NewTab_Click" />
+        <MenuItem Header="_Open File..." InputGesture="Ctrl+O" Click="OpenFile_Click" />
+        <Separator />
+        <MenuItem Header="_Save" InputGesture="Ctrl+S" Click="Save_Click" />
+        <MenuItem Header="Save _As..." Click="SaveAs_Click" />
+        <MenuItem Header="Save A_ll" InputGesture="Ctrl+Shift+S" Click="SaveAll_Click" />
+        <Separator />
+        <MenuItem Header="_Close Tab" InputGesture="Ctrl+W" Click="CloseTab_Click" />
+        <MenuItem Header="Close All" Click="CloseAll_Click" />
+        <Separator />
+        <MenuItem Header="E_xit" Click="Exit_Click" />
+      </MenuItem>
+      <MenuItem Header="_Edit">
+        <MenuItem Header="_Undo" InputGesture="Ctrl+Z" Click="Undo_Click" />
+        <MenuItem Header="_Redo" InputGesture="Ctrl+Y" Click="Redo_Click" />
+        <Separator />
+        <MenuItem Header="Cu_t" InputGesture="Ctrl+X" Click="Cut_Click" />
+        <MenuItem Header="_Copy" InputGesture="Ctrl+C" Click="Copy_Click" />
+        <MenuItem Header="_Paste" InputGesture="Ctrl+V" Click="Paste_Click" />
+        <MenuItem Header="Select _All" InputGesture="Ctrl+A" Click="SelectAll_Click" />
+        <Separator />
+        <MenuItem Header="_Indent" Click="Indent_Click" />
+        <MenuItem Header="_Unindent" Click="Unindent_Click" />
+      </MenuItem>
+      <MenuItem Header="_View">
+        <MenuItem Header="Toggle _Word Wrap" Click="WordWrap_Click" />
+        <MenuItem Header="Toggle _Line Numbers" Click="LineNumbers_Click" />
+        <MenuItem Header="Toggle _Markdown Preview" Click="MarkdownPreview_Click" />
+        <Separator />
+        <MenuItem Header="_Light Theme" Click="LightTheme_Click" />
+        <MenuItem Header="_Dark Theme" Click="DarkTheme_Click" />
+      </MenuItem>
+      <MenuItem Header="_Search">
+        <MenuItem Header="_Find" InputGesture="Ctrl+F" Click="ShowFind_Click" />
+        <MenuItem Header="Find _Next" InputGesture="F3" Click="FindNext_Click" />
+        <MenuItem Header="Find _Previous" InputGesture="Shift+F3" Click="FindPrevious_Click" />
+        <MenuItem Header="_Replace" InputGesture="Ctrl+H" Click="ShowReplace_Click" />
+        <MenuItem Header="Replace _All" Click="ReplaceAll_Click" />
+      </MenuItem>
+      <MenuItem Header="F_ormat">
+        <MenuItem Header="Format _JSON" Click="FormatJson_Click" />
+        <MenuItem Header="Format _XML" Click="FormatXml_Click" />
+      </MenuItem>
+      <MenuItem Header="_Settings">
+        <MenuItem Header="Default: Spaces 3" IsEnabled="False" />
+        <MenuItem Header="Recovery: Enabled" IsEnabled="False" />
+      </MenuItem>
+      <MenuItem Header="_Help">
+        <MenuItem Header="_Keyboard Shortcuts" Click="Shortcuts_Click" />
+        <MenuItem Header="_About" Click="About_Click" />
+      </MenuItem>
+    </Menu>
+
+    <Border DockPanel.Dock="Bottom" Background="#FFFFFF" BorderBrush="#D9DEE7" BorderThickness="0,1,0,0" Height="28">
+      <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,*">
+        <TextBlock x:Name="CursorStatus" Classes="status" Grid.Column="0" Text="Ln 1, Col 1" />
+        <TextBlock Classes="status" Grid.Column="1" Text="Spaces: 3" />
+        <TextBlock x:Name="EncodingStatus" Classes="status" Grid.Column="2" Text="UTF-8" />
+        <TextBlock x:Name="LineEndingStatus" Classes="status" Grid.Column="3" Text="LF" />
+        <TextBlock x:Name="SyntaxStatus" Classes="status" Grid.Column="4" Text="Plain text" />
+        <TextBlock x:Name="SaveStatus" Classes="status" Grid.Column="5" Text="Ready" />
+        <TextBlock x:Name="RecoveryStatus" Classes="status" Grid.Column="6" HorizontalAlignment="Right" Text="Recovery on" />
+      </Grid>
+    </Border>
+
+    <Border x:Name="SearchPanel" DockPanel.Dock="Top" Background="#EEF2F7" BorderBrush="#D9DEE7" BorderThickness="0,0,0,1" Padding="8" IsVisible="False">
+      <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,*">
+        <TextBox x:Name="FindBox" Classes="searchBox" Watermark="Find" KeyDown="FindBox_KeyDown" />
+        <TextBox x:Name="ReplaceBox" Classes="searchBox" Grid.Column="1" Watermark="Replace" IsVisible="False" />
+        <Button Grid.Column="2" Content="Previous" Margin="4,0" Click="FindPrevious_Click" />
+        <Button Grid.Column="3" Content="Next" Margin="4,0" Click="FindNext_Click" />
+        <Button Grid.Column="4" Content="Replace" Margin="4,0" Click="ReplaceCurrent_Click" />
+        <Button Grid.Column="5" Content="All" Margin="4,0" Click="ReplaceAll_Click" />
+        <CheckBox x:Name="MatchCaseBox" Grid.Column="6" Content="Case" VerticalAlignment="Center" Margin="8,0" />
+        <CheckBox x:Name="WholeWordBox" Grid.Column="7" Content="Word" VerticalAlignment="Center" Margin="8,0" />
+        <CheckBox x:Name="RegexBox" Grid.Column="8" Content="Regex" VerticalAlignment="Center" Margin="8,0" />
+        <TextBlock x:Name="MatchStatus" Grid.Column="9" VerticalAlignment="Center" HorizontalAlignment="Right" Foreground="#475569" />
+      </Grid>
+    </Border>
+
+    <Grid RowDefinitions="Auto,*">
+      <Border Background="#FFFFFF" BorderBrush="#D9DEE7" BorderThickness="0,0,0,1">
+        <DockPanel>
+          <Button DockPanel.Dock="Right" Classes="icon" Content="+" ToolTip.Tip="New tab" Click="NewTab_Click" Margin="4" />
+          <TabControl x:Name="Tabs" SelectionChanged="Tabs_SelectionChanged" />
+        </DockPanel>
+      </Border>
+
+      <Grid Grid.Row="1" ColumnDefinitions="*,0,0" x:Name="EditorGrid">
+        <avaloniaEdit:TextEditor x:Name="Editor"
+                                 Grid.Column="0"
+                                 FontFamily="Cascadia Mono, Consolas, Menlo, monospace"
+                                 FontSize="14"
+                                 Background="#FFFFFF"
+                                 Foreground="#111827"
+                                 ShowLineNumbers="True"
+                                 WordWrap="False"
+                                 HorizontalScrollBarVisibility="Auto"
+                                 VerticalScrollBarVisibility="Auto" />
+        <GridSplitter x:Name="PreviewSplitter" Grid.Column="1" Width="5" Background="#D9DEE7" IsVisible="False" />
+        <ScrollViewer x:Name="PreviewPane" Grid.Column="2" Background="#FCFCFD" IsVisible="False" Padding="22">
+          <TextBlock x:Name="MarkdownPreview"
+                     FontFamily="Inter, Segoe UI, Arial"
+                     FontSize="14"
+                     Foreground="#1F2937"
+                     TextWrapping="Wrap" />
+        </ScrollViewer>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</Window>
