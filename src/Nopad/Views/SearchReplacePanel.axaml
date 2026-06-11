@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Noopad.ViewModels"
+             x:Class="Noopad.Views.SearchReplacePanel"
+             x:DataType="vm:SearchReplacePanelViewModel">
+    <Border Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}"
+            BorderThickness="0,1,0,0"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            Padding="8,6">
+        <StackPanel Spacing="4">
+            <!-- Find row -->
+            <StackPanel Orientation="Horizontal" Spacing="6">
+                <TextBlock Text="Find:" VerticalAlignment="Center" Width="50"/>
+                <TextBox x:Name="SearchBox" Text="{Binding SearchText}" Width="220" PlaceholderText="Search..."/>
+                <Button Content="▼" Command="{Binding FindNextCommand}" ToolTip.Tip="Find Next (F3)" Padding="8,4"/>
+                <Button Content="▲" Command="{Binding FindPreviousCommand}" ToolTip.Tip="Find Prev (Shift+F3)" Padding="8,4"/>
+                <CheckBox Content="Aa" IsChecked="{Binding MatchCase}" ToolTip.Tip="Match case" VerticalAlignment="Center"/>
+                <CheckBox Content="\b" IsChecked="{Binding WholeWord}" ToolTip.Tip="Whole word" VerticalAlignment="Center"/>
+                <CheckBox Content=".*" IsChecked="{Binding UseRegex}" ToolTip.Tip="Use regex" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" Foreground="Gray" FontSize="11"/>
+                <Button Content="✕" Command="{Binding CloseCommand}" Padding="6,4" Background="Transparent" BorderThickness="0" ToolTip.Tip="Close"/>
+            </StackPanel>
+
+            <!-- Replace row -->
+            <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding ShowReplace}">
+                <TextBlock Text="Replace:" VerticalAlignment="Center" Width="50"/>
+                <TextBox Text="{Binding ReplaceText}" Width="220" PlaceholderText="Replace with..."/>
+                <Button Content="Replace" Command="{Binding ReplaceCurrentCommand}" Padding="8,4"/>
+                <Button Content="Replace All" Command="{Binding ReplaceAllCommand}" Padding="8,4"/>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>

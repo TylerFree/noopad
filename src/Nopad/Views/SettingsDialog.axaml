@@ -1,0 +1,50 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Noopad.Views.SettingsDialog"
+        Title="Preferences"
+        Width="440" Height="340"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        ShowInTaskbar="False">
+    <Grid Margin="24" RowDefinitions="*,Auto">
+        <StackPanel Grid.Row="0" Spacing="16">
+            <!-- Theme -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Theme" FontWeight="SemiBold"/>
+                <ComboBox x:Name="ThemeCombo" Width="200" HorizontalAlignment="Left">
+                    <ComboBoxItem Content="Dark" Tag="Dark"/>
+                    <ComboBoxItem Content="Light" Tag="Light"/>
+                    <ComboBoxItem Content="System Default" Tag="Default"/>
+                </ComboBox>
+            </StackPanel>
+
+            <!-- Editor defaults -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Editor Defaults" FontWeight="SemiBold"/>
+                <CheckBox x:Name="WordWrapCheck" Content="Word wrap by default"/>
+                <CheckBox x:Name="LineNumbersCheck" Content="Show line numbers by default"/>
+            </StackPanel>
+
+            <!-- Font -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Font" FontWeight="SemiBold"/>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Family" FontSize="11" Foreground="Gray"/>
+                        <TextBox x:Name="FontFamilyBox" Width="230" PlaceholderText="Font family"/>
+                    </StackPanel>
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Size" FontSize="11" Foreground="Gray"/>
+                        <NumericUpDown x:Name="FontSizeBox" Width="80" Minimum="8" Maximum="72" Increment="1" FormatString="0"/>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Content="Cancel" Width="80" Click="CancelClick"/>
+            <Button Content="Apply" Width="80" Click="ApplyClick" Classes="accent"/>
+        </StackPanel>
+    </Grid>
+</Window>

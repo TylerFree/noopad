@@ -1,0 +1,17 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Noopad.Views.SaveConfirmDialog"
+        Title="Save Changes"
+        Width="380" Height="160"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        ShowInTaskbar="False">
+    <Grid Margin="20" RowDefinitions="*,Auto">
+        <TextBlock Grid.Row="0" x:Name="MessageText" TextWrapping="Wrap" VerticalAlignment="Center"/>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button x:Name="SaveBtn" Content="Save" Width="80"/>
+            <Button x:Name="DiscardBtn" Content="Don't Save" Width="90"/>
+            <Button x:Name="CancelBtn" Content="Cancel" Width="80"/>
+        </StackPanel>
+    </Grid>
+</Window>

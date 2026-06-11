@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Noopad.ViewModels"
+             xmlns:aedit="using:AvaloniaEdit"
+             xmlns:markav="using:Markdown.Avalonia"
+             x:Class="Noopad.Views.EditorDocumentView">
+
+    <Grid x:Name="EditorGrid">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="0"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Main editor -->
+        <aedit:TextEditor Grid.Column="0"
+                          x:Name="TextEditor"
+                          FontFamily="Cascadia Code,Consolas,Courier New,monospace"
+                          FontSize="14"
+                          ShowLineNumbers="{Binding ShowLineNumbers}"
+                          WordWrap="{Binding WordWrap}"
+                          HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Auto"/>
+
+        <!-- Splitter shown only when markdown preview is active -->
+        <GridSplitter Grid.Column="1"
+                      Width="4"
+                      Background="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                      IsVisible="{Binding ShowMarkdownPreview}"/>
+
+        <!-- Markdown preview using Markdown.Avalonia for real rendering -->
+        <markav:MarkdownScrollViewer Grid.Column="2"
+                                     x:Name="MarkdownPreview"
+                                     Markdown="{Binding Content}"
+                                     IsVisible="{Binding ShowMarkdownPreview}"/>
+    </Grid>
+</UserControl>
