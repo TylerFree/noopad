@@ -1,7 +1,7 @@
 using System.Text.Json;
-using Nopad.Models;
+using Noopad.Models;
 
-namespace Nopad.Services;
+namespace Noopad.Services;
 
 public class RecoveryService : IRecoveryService
 {
@@ -13,7 +13,7 @@ public class RecoveryService : IRecoveryService
     public RecoveryService()
     {
         var appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        RecoveryDirectory = Path.Combine(appData, "Nopad", "recovery");
+        RecoveryDirectory = Path.Combine(appData, "noopad", "recovery");
         _tabsDir = Path.Combine(RecoveryDirectory, "tabs");
         Directory.CreateDirectory(_tabsDir);
         _manifestPath = Path.Combine(RecoveryDirectory, "session.json");

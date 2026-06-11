@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace Nopad.Services;
+namespace Noopad.Services;
 
 public class FormattingService : IFormattingService
 {

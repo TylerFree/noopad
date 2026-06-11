@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace Nopad.Services;
+namespace Noopad.Services;
 
 public class SearchReplaceService : ISearchReplaceService
 {

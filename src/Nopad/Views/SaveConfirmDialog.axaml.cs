@@ -1,7 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 
-namespace Nopad.Views;
+namespace Noopad.Views;
 
 public partial class SaveConfirmDialog : Window
 {

@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Nopad.Models;
+namespace Noopad.Models;
 
 public class EditorSessionManifest
 {

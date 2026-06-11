@@ -1,4 +1,4 @@
-namespace Nopad.Services;
+namespace Noopad.Services;
 
 public interface IMarkdownPreviewService
 {

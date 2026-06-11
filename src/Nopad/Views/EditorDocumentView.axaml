@@ -1,8 +1,9 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:Nopad.ViewModels"
+             xmlns:vm="using:Noopad.ViewModels"
              xmlns:aedit="using:AvaloniaEdit"
-             x:Class="Nopad.Views.EditorDocumentView">
+             xmlns:markav="using:Markdown.Avalonia"
+             x:Class="Noopad.Views.EditorDocumentView">
 
     <Grid x:Name="EditorGrid">
         <Grid.ColumnDefinitions>
@@ -27,15 +28,10 @@
                       Background="{DynamicResource SystemControlForegroundBaseLowBrush}"
                       IsVisible="{Binding ShowMarkdownPreview}"/>
 
-        <!-- Markdown preview -->
-        <ScrollViewer Grid.Column="2"
-                      HorizontalScrollBarVisibility="Auto"
-                      VerticalScrollBarVisibility="Auto"
-                      IsVisible="{Binding ShowMarkdownPreview}">
-            <TextBlock x:Name="MarkdownPreview"
-                       Padding="16"
-                       TextWrapping="Wrap"
-                       FontFamily="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"/>
-        </ScrollViewer>
+        <!-- Markdown preview using Markdown.Avalonia for real rendering -->
+        <markav:MarkdownScrollViewer Grid.Column="2"
+                                     x:Name="MarkdownPreview"
+                                     Markdown="{Binding Content}"
+                                     IsVisible="{Binding ShowMarkdownPreview}"/>
     </Grid>
 </UserControl>

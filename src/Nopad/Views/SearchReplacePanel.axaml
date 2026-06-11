@@ -1,7 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:Nopad.ViewModels"
-             x:Class="Nopad.Views.SearchReplacePanel"
+             xmlns:vm="using:Noopad.ViewModels"
+             x:Class="Noopad.Views.SearchReplacePanel"
              x:DataType="vm:SearchReplacePanelViewModel">
     <Border Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}"
             BorderThickness="0,1,0,0"

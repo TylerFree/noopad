@@ -1,6 +1,6 @@
-using Nopad.Models;
+using Noopad.Models;
 
-namespace Nopad.Services;
+namespace Noopad.Services;
 
 public interface ISyntaxService
 {

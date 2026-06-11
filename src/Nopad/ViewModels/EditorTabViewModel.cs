@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Nopad.Models;
+using Noopad.Models;
 
-namespace Nopad.ViewModels;
+namespace Noopad.ViewModels;
 
 public partial class EditorTabViewModel : ObservableObject
 {

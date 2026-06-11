@@ -1,6 +1,6 @@
 using Markdig;
 
-namespace Nopad.Services;
+namespace Noopad.Services;
 
 public class MarkdownPreviewService : IMarkdownPreviewService
 {
@@ -15,7 +15,7 @@ public class MarkdownPreviewService : IMarkdownPreviewService
 
     public string RenderToHtml(string markdown)
     {
-        var body = Markdown.ToHtml(markdown, _pipeline);
+        var body = Markdig.Markdown.ToHtml(markdown, _pipeline);
         return $@"<!DOCTYPE html>
 <html>
 <head>

@@ -2,13 +2,15 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Threading;
 using AvaloniaEdit;
 using AvaloniaEdit.Highlighting;
-using Nopad.Models;
-using Nopad.ViewModels;
+using Noopad.Models;
+using Noopad.Services;
+using Noopad.ViewModels;
 
-namespace Nopad.Views;
+namespace Noopad.Views;
 
 public partial class EditorDocumentView : UserControl
 {
@@ -25,9 +27,7 @@ public partial class EditorDocumentView : UserControl
     private void OnDataContextChanged(object? sender, EventArgs e)
     {
         if (_viewModel != null)
-        {
             _viewModel.PropertyChanged -= OnVmPropertyChanged;
-        }
 
         _viewModel = DataContext as EditorTabViewModel;
 
@@ -47,11 +47,28 @@ public partial class EditorDocumentView : UserControl
         editor.TextChanged += OnEditorTextChanged;
         editor.TextArea.Caret.PositionChanged += OnCaretPositionChanged;
         editor.TextArea.TextView.ScrollOffsetChanged += OnScrollOffsetChanged;
-
-        // Key bindings
         editor.TextArea.KeyDown += OnEditorKeyDown;
 
+        ApplyStoredFontSettings(editor);
         SyncFromViewModel();
+    }
+
+    private void ApplyStoredFontSettings(TextEditor editor)
+    {
+        var mainVm = GetMainViewModel();
+        if (mainVm?.Settings?.Settings is UserSettings s)
+        {
+            editor.FontSize = s.FontSize;
+            editor.FontFamily = new FontFamily(s.FontFamily);
+        }
+    }
+
+    public void ApplyFontSettings(UserSettings settings)
+    {
+        var editor = this.FindControl<TextEditor>("TextEditor");
+        if (editor == null) return;
+        editor.FontSize = settings.FontSize;
+        editor.FontFamily = new FontFamily(settings.FontFamily);
     }
 
     private void SyncFromViewModel()
@@ -65,7 +82,6 @@ public partial class EditorDocumentView : UserControl
         {
             if (editor.Text != _viewModel.Content)
                 editor.Text = _viewModel.Content;
-
             ApplySyntaxHighlighting(editor, _viewModel.Syntax);
             UpdatePreviewColumnWidth(_viewModel.ShowMarkdownPreview);
         }
@@ -113,7 +129,6 @@ public partial class EditorDocumentView : UserControl
         try
         {
             var editor = (TextEditor)sender!;
-            // Notify VM of content change
             if (DataContext is EditorTabViewModel vm)
             {
                 var mainVm = GetMainViewModel();
@@ -173,7 +188,7 @@ public partial class EditorDocumentView : UserControl
     {
         var doc = editor.Document;
         var caret = editor.TextArea.Caret;
-        doc.Insert(caret.Offset, "   "); // 3 spaces
+        doc.Insert(caret.Offset, "   ");
     }
 
     private static void RemoveIndent(TextEditor editor)
@@ -208,11 +223,55 @@ public partial class EditorDocumentView : UserControl
 
         try
         {
-            editor.SyntaxHighlighting = name != null
-                ? HighlightingManager.Instance.GetDefinition(name)
-                : null;
+            if (name != null)
+            {
+                var definition = HighlightingManager.Instance.GetDefinition(name);
+                if (definition != null && name == "Json")
+                    definition = BuildDarkJsonHighlighting(definition);
+                editor.SyntaxHighlighting = definition;
+            }
+            else
+            {
+                editor.SyntaxHighlighting = null;
+            }
         }
         catch { editor.SyntaxHighlighting = null; }
+    }
+
+    // Remap JSON highlighting colors for visibility on dark backgrounds
+    private static IHighlightingDefinition BuildDarkJsonHighlighting(IHighlightingDefinition def)
+    {
+        // Map of rule names to dark-mode friendly colors
+        var colorMap = new Dictionary<string, Color>
+        {
+            { "String", Color.FromRgb(0xCE, 0x91, 0x78) },      // warm orange
+            { "NumberLiteral", Color.FromRgb(0xB5, 0xCE, 0xA8) },// soft green
+            { "Keyword", Color.FromRgb(0x56, 0x9C, 0xD6) },      // blue
+            { "Punctuation", Color.FromRgb(0xCC, 0xCC, 0xCC) },  // light gray
+        };
+
+        foreach (var rule in def.MainRuleSet.Rules)
+        {
+            foreach (var (ruleName, color) in colorMap)
+            {
+                if (rule.Color?.Name?.Contains(ruleName, StringComparison.OrdinalIgnoreCase) == true ||
+                    (rule.Color != null && def.GetNamedColor(rule.Color.Name)?.Name?.Contains(ruleName, StringComparison.OrdinalIgnoreCase) == true))
+                {
+                    rule.Color.Foreground = new SimpleHighlightingBrush(color);
+                }
+            }
+        }
+
+        // Also update named colors in the definition
+        foreach (var (ruleName, color) in colorMap)
+        {
+            var namedColor = def.NamedHighlightingColors.FirstOrDefault(c =>
+                c.Name?.Contains(ruleName, StringComparison.OrdinalIgnoreCase) == true);
+            if (namedColor != null)
+                namedColor.Foreground = new SimpleHighlightingBrush(color);
+        }
+
+        return def;
     }
 
     private void UpdatePreviewColumnWidth(bool show)

@@ -1,10 +1,10 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Nopad.Services;
-using Nopad.ViewModels;
+using Noopad.Services;
+using Noopad.ViewModels;
 
-namespace Nopad.Views;
+namespace Noopad.Views;
 
 public partial class MainWindow : Window
 {
@@ -28,6 +28,20 @@ public partial class MainWindow : Window
         {
             var dialog = new SaveConfirmDialog(tab.Title);
             return await dialog.ShowDialog<bool?>(this);
+        };
+
+        _vm.ShowSettingsHandler = async () =>
+        {
+            if (_vm?.Settings is IUserSettingsService svc)
+            {
+                var dialog = new SettingsDialog(svc);
+                var result = await dialog.ShowDialog<bool?>(this);
+                if (result == true)
+                {
+                    _vm.ApplySettingsToAllTabs();
+                    FindEditorView()?.ApplyFontSettings(svc.Settings);
+                }
+            }
         };
 
         _vm.SelectTextRequested += (start, length) =>

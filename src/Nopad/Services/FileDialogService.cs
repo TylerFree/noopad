@@ -1,7 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 
-namespace Nopad.Services;
+namespace Noopad.Services;
 
 public class FileDialogService : IFileDialogService
 {

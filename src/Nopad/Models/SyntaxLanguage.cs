@@ -1,4 +1,4 @@
-namespace Nopad.Models;
+namespace Noopad.Models;
 
 public enum SyntaxLanguage
 {

@@ -1,6 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        x:Class="Nopad.Views.SaveConfirmDialog"
+        x:Class="Noopad.Views.SaveConfirmDialog"
         Title="Save Changes"
         Width="380" Height="160"
         WindowStartupLocation="CenterOwner"

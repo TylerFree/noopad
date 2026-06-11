@@ -1,10 +1,10 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Nopad.Models;
-using Nopad.Services;
+using Noopad.Models;
+using Noopad.Services;
 
-namespace Nopad.ViewModels;
+namespace Noopad.ViewModels;
 
 public partial class MainWindowViewModel : ObservableObject
 {
@@ -14,6 +14,7 @@ public partial class MainWindowViewModel : ObservableObject
     private readonly IMarkdownPreviewService _markdown;
     private readonly ISearchReplaceService _search;
     private readonly IUserSettingsService _settings;
+    public IUserSettingsService Settings => _settings;
 
     public IFileDialogService? FileDialog { get; set; }
 
@@ -325,6 +326,24 @@ public partial class MainWindowViewModel : ObservableObject
         else StatusMessage = result;
     }
 
+
+    public Func<Task>? ShowSettingsHandler { get; set; }
+
+    [RelayCommand]
+    private async Task ShowSettings()
+    {
+        if (ShowSettingsHandler != null)
+            await ShowSettingsHandler();
+    }
+
+    public void ApplySettingsToAllTabs()
+    {
+        foreach (var tab in Tabs)
+        {
+            tab.WordWrap = _settings.Settings.WordWrap;
+            tab.ShowLineNumbers = _settings.Settings.ShowLineNumbers;
+        }
+    }
     public void OnContentChanged(EditorTabViewModel tab, string newContent)
     {
         tab.Content = newContent;

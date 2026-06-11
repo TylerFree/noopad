@@ -1,7 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 
-namespace Nopad.Views;
+namespace Noopad.Views;
 
 public partial class SearchReplacePanel : UserControl
 {

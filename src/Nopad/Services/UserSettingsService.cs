@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace Nopad.Services;
+namespace Noopad.Services;
 
 public class UserSettingsService : IUserSettingsService
 {
@@ -10,7 +10,7 @@ public class UserSettingsService : IUserSettingsService
     public UserSettingsService()
     {
         var appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        var dir = Path.Combine(appData, "Nopad");
+        var dir = Path.Combine(appData, "noopad");
         Directory.CreateDirectory(dir);
         _settingsPath = Path.Combine(dir, "settings.json");
         Settings = Load();

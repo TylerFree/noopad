@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace Nopad.ViewModels;
+namespace Noopad.ViewModels;
 
 public partial class SearchReplacePanelViewModel : ObservableObject
 {

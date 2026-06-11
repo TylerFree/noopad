@@ -2,7 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace Nopad;
+namespace Noopad;
 
 public class ViewLocator : IDataTemplate
 {

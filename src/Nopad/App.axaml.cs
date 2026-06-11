@@ -1,11 +1,12 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Nopad.Services;
-using Nopad.ViewModels;
-using Nopad.Views;
+using Avalonia.Styling;
+using Noopad.Services;
+using Noopad.ViewModels;
+using Noopad.Views;
 
-namespace Nopad;
+namespace Noopad;
 
 public partial class App : Application
 {
@@ -18,12 +19,14 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            var settings = new UserSettingsService();
+            ApplyTheme(settings.Settings.ThemeVariant);
+
             var recovery = new RecoveryService();
             var formatting = new FormattingService();
             var syntax = new SyntaxService();
             var markdown = new MarkdownPreviewService();
             var search = new SearchReplaceService();
-            var settings = new UserSettingsService();
 
             var vm = new MainWindowViewModel(recovery, formatting, syntax, markdown, search, settings);
 
@@ -34,5 +37,16 @@ public partial class App : Application
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private static void ApplyTheme(string variant)
+    {
+        if (Current == null) return;
+        Current.RequestedThemeVariant = variant switch
+        {
+            "Light" => ThemeVariant.Light,
+            "Dark" => ThemeVariant.Dark,
+            _ => ThemeVariant.Default
+        };
     }
 }
