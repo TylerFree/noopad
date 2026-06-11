@@ -14,6 +14,7 @@ public partial class MainWindowViewModel : ObservableObject
     private readonly IMarkdownPreviewService _markdown;
     private readonly ISearchReplaceService _search;
     private readonly IUserSettingsService _settings;
+    private readonly IReadOnlyList<string> _startupFilePaths;
     public IUserSettingsService Settings => _settings;
 
     public IFileDialogService? FileDialog { get; set; }
@@ -34,7 +35,8 @@ public partial class MainWindowViewModel : ObservableObject
         ISyntaxService syntax,
         IMarkdownPreviewService markdown,
         ISearchReplaceService search,
-        IUserSettingsService settings)
+        IUserSettingsService settings,
+        IEnumerable<string>? startupFilePaths = null)
     {
         _recovery = recovery;
         _formatting = formatting;
@@ -42,6 +44,9 @@ public partial class MainWindowViewModel : ObservableObject
         _markdown = markdown;
         _search = search;
         _settings = settings;
+        _startupFilePaths = startupFilePaths?
+            .Where(path => !string.IsNullOrWhiteSpace(path))
+            .ToArray() ?? Array.Empty<string>();
 
         SearchPanel.FindNextRequested += OnFindNext;
         SearchPanel.FindPreviousRequested += OnFindPrevious;
@@ -61,16 +66,25 @@ public partial class MainWindowViewModel : ObservableObject
 
     public async Task InitializeAsync()
     {
+        if (_startupFilePaths.Count > 0)
+        {
+            var openedAny = false;
+            foreach (var path in _startupFilePaths)
+                openedAny |= await OpenDocumentAsync(path);
+
+            if (openedAny)
+                return;
+        }
+
         var manifest = await _recovery.LoadManifestAsync();
         if (manifest != null && manifest.Tabs.Count > 0)
         {
             NextUntitledNumber = manifest.NextUntitledNumber;
             foreach (var record in manifest.Tabs)
-            {
-                var tab = CreateTabFromRecord(record);
-                Tabs.Add(tab);
-            }
+                Tabs.Add(await CreateTabFromRecordAsync(record));
+
             ActiveTab = Tabs.FirstOrDefault(t => t.Id == manifest.ActiveTabId) ?? Tabs.First();
+            StatusMessage = $"Restored {Tabs.Count} document{(Tabs.Count == 1 ? string.Empty : "s")}";
         }
         else
         {
@@ -78,7 +92,7 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
-    private EditorTabViewModel CreateTabFromRecord(RecoveryTabRecord record)
+    private async Task<EditorTabViewModel> CreateTabFromRecordAsync(RecoveryTabRecord record)
     {
         var tab = new EditorTabViewModel(record.Id)
         {
@@ -93,22 +107,24 @@ public partial class MainWindowViewModel : ObservableObject
             VerticalOffset = record.VerticalOffset,
             FileLastWriteTime = record.FileLastWriteTime
         };
-        _ = LoadTabContentAsync(tab, record);
+        await LoadTabContentAsync(tab, record);
         return tab;
     }
 
     private async Task LoadTabContentAsync(EditorTabViewModel tab, RecoveryTabRecord record)
     {
         string? content = null;
-        if (record.FilePath != null && File.Exists(record.FilePath))
+
+        if (record.IsDirty)
+            content = await _recovery.LoadTabContentAsync(record.RecoveryPath);
+
+        if (content == null && record.FilePath != null && File.Exists(record.FilePath))
         {
             var diskTime = File.GetLastWriteTimeUtc(record.FilePath);
-            if (!record.IsDirty || (record.FileLastWriteTime.HasValue && diskTime <= record.FileLastWriteTime.Value.ToUniversalTime()))
-            {
-                content = await File.ReadAllTextAsync(record.FilePath);
-                tab.FileLastWriteTime = diskTime;
-            }
+            content = await File.ReadAllTextAsync(record.FilePath);
+            tab.FileLastWriteTime = diskTime;
         }
+
         if (content == null)
             content = await _recovery.LoadTabContentAsync(record.RecoveryPath) ?? string.Empty;
 
@@ -142,25 +158,46 @@ public partial class MainWindowViewModel : ObservableObject
         var path = await FileDialog.OpenFileAsync();
         if (path == null) return;
 
-        var existing = Tabs.FirstOrDefault(t => t.FilePath == path);
-        if (existing != null) { ActiveTab = existing; return; }
+        await OpenDocumentAsync(path);
+    }
 
-        var content = await File.ReadAllTextAsync(path);
+    public async Task<bool> OpenDocumentAsync(string path)
+    {
+        var fullPath = Path.GetFullPath(path);
+        if (!File.Exists(fullPath))
+        {
+            StatusMessage = $"File not found: {fullPath}";
+            return false;
+        }
+
+        var existing = Tabs.FirstOrDefault(t => t.FilePath != null && PathsEqual(t.FilePath, fullPath));
+        if (existing != null) { ActiveTab = existing; return true; }
+
+        var content = await File.ReadAllTextAsync(fullPath);
         var id = $"tab-{Guid.NewGuid():N}";
-        var syntax = _syntax.DetectFromExtension(path);
+        var syntax = _syntax.DetectFromExtension(fullPath);
         var tab = new EditorTabViewModel(id)
         {
-            FilePath = path,
-            Title = Path.GetFileName(path),
+            FilePath = fullPath,
+            Title = Path.GetFileName(fullPath),
             Syntax = syntax,
             ShowLineNumbers = _settings.Settings.ShowLineNumbers,
             WordWrap = _settings.Settings.WordWrap,
-            FileLastWriteTime = File.GetLastWriteTimeUtc(path)
+            FileLastWriteTime = File.GetLastWriteTimeUtc(fullPath)
         };
         tab.MarkClean(content);
         Tabs.Add(tab);
         ActiveTab = tab;
         ScheduleRecovery();
+        return true;
+    }
+
+    private static bool PathsEqual(string left, string right)
+    {
+        var comparison = OperatingSystem.IsWindows()
+            ? StringComparison.OrdinalIgnoreCase
+            : StringComparison.Ordinal;
+        return string.Equals(Path.GetFullPath(left), Path.GetFullPath(right), comparison);
     }
 
     [RelayCommand]
@@ -269,6 +306,12 @@ public partial class MainWindowViewModel : ObservableObject
         if (Tabs.Count == 0) return;
         var idx = ActiveTab == null ? 0 : (Tabs.IndexOf(ActiveTab) - 1 + Tabs.Count) % Tabs.Count;
         ActiveTab = Tabs[idx];
+    }
+
+    partial void OnActiveTabChanged(EditorTabViewModel? oldValue, EditorTabViewModel? newValue)
+    {
+        if (oldValue != null) oldValue.IsActive = false;
+        if (newValue != null) newValue.IsActive = true;
     }
 
     [RelayCommand]

@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:media="using:Avalonia.Media"
         xmlns:vm="using:Noopad.ViewModels"
         xmlns:views="using:Noopad.Views"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -20,6 +21,69 @@
         <KeyBinding Gesture="Ctrl+F" Command="{Binding ShowFindPanelCommand}"/>
         <KeyBinding Gesture="Ctrl+H" Command="{Binding ShowReplacePanelCommand}"/>
     </Window.KeyBindings>
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <media:SolidColorBrush x:Key="TabStripBackgroundBrush" Color="#EEF2F6"/>
+                    <media:SolidColorBrush x:Key="TabStripBorderBrush" Color="#CBD5E1"/>
+                    <media:SolidColorBrush x:Key="TabBackgroundBrush" Color="#DDE5EF"/>
+                    <media:SolidColorBrush x:Key="TabHoverBackgroundBrush" Color="#CBD8E8"/>
+                    <media:SolidColorBrush x:Key="TabActiveBackgroundBrush" Color="#2E5D8C"/>
+                    <media:SolidColorBrush x:Key="TabActiveBorderBrush" Color="#0078D4"/>
+                    <media:SolidColorBrush x:Key="TabForegroundBrush" Color="#1F2937"/>
+                    <media:SolidColorBrush x:Key="TabActiveForegroundBrush" Color="#FFFFFF"/>
+                    <media:SolidColorBrush x:Key="TabCloseHoverBackgroundBrush" Color="#B9C7D8"/>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <media:SolidColorBrush x:Key="TabStripBackgroundBrush" Color="#11161D"/>
+                    <media:SolidColorBrush x:Key="TabStripBorderBrush" Color="#303846"/>
+                    <media:SolidColorBrush x:Key="TabBackgroundBrush" Color="#1B2028"/>
+                    <media:SolidColorBrush x:Key="TabHoverBackgroundBrush" Color="#252C36"/>
+                    <media:SolidColorBrush x:Key="TabActiveBackgroundBrush" Color="#303846"/>
+                    <media:SolidColorBrush x:Key="TabActiveBorderBrush" Color="#5EA1FF"/>
+                    <media:SolidColorBrush x:Key="TabForegroundBrush" Color="#C8D0DC"/>
+                    <media:SolidColorBrush x:Key="TabActiveForegroundBrush" Color="#FFFFFF"/>
+                    <media:SolidColorBrush x:Key="TabCloseHoverBackgroundBrush" Color="#3E4654"/>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Window.Styles>
+        <Style Selector="Button.tab">
+            <Setter Property="Background" Value="{DynamicResource TabBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0,2,0,0"/>
+            <Setter Property="Foreground" Value="{DynamicResource TabForegroundBrush}"/>
+        </Style>
+        <Style Selector="Button.tab:pointerover">
+            <Setter Property="Background" Value="{DynamicResource TabHoverBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TabForegroundBrush}"/>
+        </Style>
+        <Style Selector="Button.tab.active">
+            <Setter Property="Background" Value="{DynamicResource TabActiveBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource TabActiveBorderBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TabActiveForegroundBrush}"/>
+        </Style>
+        <Style Selector="Button.tab.active:pointerover">
+            <Setter Property="Background" Value="{DynamicResource TabActiveBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TabActiveForegroundBrush}"/>
+        </Style>
+        <Style Selector="Button.close-tab">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource TabForegroundBrush}"/>
+        </Style>
+        <Style Selector="Button.close-tab:pointerover">
+            <Setter Property="Background" Value="{DynamicResource TabCloseHoverBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TabActiveForegroundBrush}"/>
+        </Style>
+        <Style Selector="Button.close-tab.active">
+            <Setter Property="Foreground" Value="{DynamicResource TabActiveForegroundBrush}"/>
+        </Style>
+    </Window.Styles>
 
     <DockPanel>
         <!-- Menu Bar -->
@@ -89,39 +153,44 @@
             </Grid.RowDefinitions>
 
             <!-- Tab Strip -->
-            <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-                <ItemsControl x:Name="TabStrip" ItemsSource="{Binding Tabs}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="vm:EditorTabViewModel">
-                            <Button x:Name="TabButton"
-                                    Padding="0"
-                                    Margin="1,2,1,0"
-                                    Background="Transparent"
-                                    BorderThickness="0">
-                                <StackPanel Orientation="Horizontal" Spacing="4" Margin="10,5,6,5">
-                                    <Ellipse Width="8" Height="8" Fill="OrangeRed"
-                                             IsVisible="{Binding IsDirty}"
-                                             VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding Title}" VerticalAlignment="Center"/>
-                                    <Button x:Name="CloseTabBtn"
-                                            Content="&#x2715;"
-                                            FontSize="10"
-                                            Padding="2,0"
-                                            Margin="2,0,0,0"
-                                            Background="Transparent"
-                                            BorderThickness="0"
-                                            VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+            <Border Grid.Row="0"
+                    Background="{DynamicResource TabStripBackgroundBrush}"
+                    BorderBrush="{DynamicResource TabStripBorderBrush}"
+                    BorderThickness="0,0,0,1">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                    <ItemsControl x:Name="TabStrip" ItemsSource="{Binding Tabs}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="vm:EditorTabViewModel">
+                                <Button x:Name="TabButton"
+                                        Classes="tab"
+                                        Classes.active="{Binding IsActive}"
+                                        Padding="0"
+                                        Margin="1,2,1,0">
+                                    <StackPanel Orientation="Horizontal" Spacing="4" Margin="10,5,6,5">
+                                        <Ellipse Width="8" Height="8" Fill="OrangeRed"
+                                                 IsVisible="{Binding IsDirty}"
+                                                 VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Title}" VerticalAlignment="Center"/>
+                                        <Button x:Name="CloseTabBtn"
+                                                Classes="close-tab"
+                                                Classes.active="{Binding IsActive}"
+                                                Content="&#x2715;"
+                                                FontSize="10"
+                                                Padding="2,0"
+                                                Margin="2,0,0,0"
+                                                VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Border>
 
             <!-- Editor Content -->
             <ContentControl Grid.Row="1" Content="{Binding ActiveTab}">

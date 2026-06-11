@@ -10,6 +10,8 @@ public partial class SettingsDialog : Window
 {
     private readonly IUserSettingsService _settings;
 
+    public SettingsDialog() : this(new UserSettingsService()) { }
+
     public SettingsDialog(IUserSettingsService settings)
     {
         InitializeComponent();

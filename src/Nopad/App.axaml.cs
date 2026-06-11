@@ -10,6 +10,8 @@ namespace Noopad;
 
 public partial class App : Application
 {
+    public static IReadOnlyList<string> StartupArgs { get; set; } = Array.Empty<string>();
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -28,7 +30,7 @@ public partial class App : Application
             var markdown = new MarkdownPreviewService();
             var search = new SearchReplaceService();
 
-            var vm = new MainWindowViewModel(recovery, formatting, syntax, markdown, search, settings);
+            var vm = new MainWindowViewModel(recovery, formatting, syntax, markdown, search, settings, StartupArgs);
 
             desktop.MainWindow = new MainWindow
             {

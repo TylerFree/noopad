@@ -14,6 +14,7 @@ public partial class EditorTabViewModel : ObservableObject
     [ObservableProperty] private bool _wordWrap;
     [ObservableProperty] private bool _showLineNumbers = true;
     [ObservableProperty] private bool _showMarkdownPreview;
+    [ObservableProperty] private bool _isActive;
     [ObservableProperty] private int _cursorLine = 1;
     [ObservableProperty] private int _cursorColumn = 1;
     [ObservableProperty] private double _verticalOffset;
