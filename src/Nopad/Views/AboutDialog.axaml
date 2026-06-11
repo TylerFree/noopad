@@ -1,0 +1,16 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Nopad.Views.AboutDialog"
+        Title="About Nopad"
+        Width="320" Height="200"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        ShowInTaskbar="False">
+    <StackPanel Margin="24" Spacing="8" VerticalAlignment="Center">
+        <TextBlock Text="Nopad" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+        <TextBlock Text="A tabbed engineer text editor" HorizontalAlignment="Center" Foreground="Gray"/>
+        <TextBlock Text="Built with Avalonia and AvaloniaEdit" HorizontalAlignment="Center" FontSize="11" Foreground="Gray"/>
+        <Button Content="OK" HorizontalAlignment="Center" Margin="0,12,0,0" Width="80"
+                Click="OkClick"/>
+    </StackPanel>
+</Window>
