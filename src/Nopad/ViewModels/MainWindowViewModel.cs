@@ -18,6 +18,7 @@ public partial class MainWindowViewModel : ObservableObject
     public IUserSettingsService Settings => _settings;
 
     public IFileDialogService? FileDialog { get; set; }
+    public Func<string, Task<bool>>? CreateMissingFileHandler { get; set; }
 
     [ObservableProperty] private ObservableCollection<EditorTabViewModel> _tabs = new();
     [ObservableProperty] private EditorTabViewModel? _activeTab;
@@ -66,15 +67,8 @@ public partial class MainWindowViewModel : ObservableObject
 
     public async Task InitializeAsync()
     {
-        if (_startupFilePaths.Count > 0)
-        {
-            var openedAny = false;
-            foreach (var path in _startupFilePaths)
-                openedAny |= await OpenDocumentAsync(path);
-
-            if (openedAny)
-                return;
-        }
+        if (await OpenStartupFilePathsAsync(_startupFilePaths, promptToCreate: true))
+            return;
 
         var manifest = await _recovery.LoadManifestAsync();
         if (manifest != null && manifest.Tabs.Count > 0)
@@ -161,17 +155,37 @@ public partial class MainWindowViewModel : ObservableObject
         await OpenDocumentAsync(path);
     }
 
-    public async Task<bool> OpenDocumentAsync(string path)
+    public async Task<bool> OpenStartupFilePathsAsync(IEnumerable<string> paths, bool promptToCreate)
+    {
+        var openedAny = false;
+        foreach (var path in paths.Where(path => !string.IsNullOrWhiteSpace(path)))
+            openedAny |= await OpenDocumentAsync(path, promptToCreate);
+
+        return openedAny;
+    }
+
+    public async Task<bool> OpenDocumentAsync(string path, bool promptToCreate = false)
     {
         var fullPath = Path.GetFullPath(path);
         if (!File.Exists(fullPath))
         {
-            StatusMessage = $"File not found: {fullPath}";
-            return false;
+            if (!promptToCreate || !await ShouldCreateMissingFileAsync(fullPath))
+            {
+                StatusMessage = $"File not found: {fullPath}";
+                return false;
+            }
+
+            if (!TryCreateMissingFile(fullPath))
+                return false;
         }
 
         var existing = Tabs.FirstOrDefault(t => t.FilePath != null && PathsEqual(t.FilePath, fullPath));
-        if (existing != null) { ActiveTab = existing; return true; }
+        if (existing != null)
+        {
+            ActiveTab = existing;
+            StatusMessage = $"Switched to {existing.Title}";
+            return true;
+        }
 
         var content = await File.ReadAllTextAsync(fullPath);
         var id = $"tab-{Guid.NewGuid():N}";
@@ -190,6 +204,29 @@ public partial class MainWindowViewModel : ObservableObject
         ActiveTab = tab;
         ScheduleRecovery();
         return true;
+    }
+
+    private async Task<bool> ShouldCreateMissingFileAsync(string fullPath)
+    {
+        return CreateMissingFileHandler != null && await CreateMissingFileHandler(fullPath);
+    }
+
+    private bool TryCreateMissingFile(string fullPath)
+    {
+        try
+        {
+            var directory = Path.GetDirectoryName(fullPath);
+            if (!string.IsNullOrEmpty(directory))
+                Directory.CreateDirectory(directory);
+
+            File.WriteAllText(fullPath, string.Empty);
+            return true;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException)
+        {
+            StatusMessage = $"Could not create file: {ex.Message}";
+            return false;
+        }
     }
 
     private static bool PathsEqual(string left, string right)

@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using Noopad.Services;
 using Noopad.ViewModels;
 
@@ -9,6 +10,7 @@ namespace Noopad.Views;
 public partial class MainWindow : Window
 {
     private MainWindowViewModel? _vm;
+    private bool _singleInstanceServerStarted;
 
     public MainWindow()
     {
@@ -28,6 +30,12 @@ public partial class MainWindow : Window
         {
             var dialog = new SaveConfirmDialog(tab.Title);
             return await dialog.ShowDialog<bool?>(this);
+        };
+
+        _vm.CreateMissingFileHandler = async (path) =>
+        {
+            var dialog = new CreateFileDialog(path);
+            return await dialog.ShowDialog<bool>(this);
         };
 
         _vm.ShowSettingsHandler = async () =>
@@ -53,6 +61,33 @@ public partial class MainWindow : Window
         WireMenuItems();
 
         await _vm.InitializeAsync();
+        StartSingleInstanceServer();
+    }
+
+    private void StartSingleInstanceServer()
+    {
+        if (_singleInstanceServerStarted || App.SingleInstanceCoordinator == null)
+            return;
+
+        _singleInstanceServerStarted = true;
+        App.SingleInstanceCoordinator.StartServer(async args =>
+        {
+            await Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                BringToFront();
+                if (_vm != null)
+                    await _vm.OpenStartupFilePathsAsync(args, promptToCreate: true);
+            });
+        });
+    }
+
+    private void BringToFront()
+    {
+        if (WindowState == WindowState.Minimized)
+            WindowState = WindowState.Normal;
+
+        Activate();
+        Focus();
     }
 
     private void WireTabStrip()

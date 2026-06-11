@@ -11,6 +11,7 @@ namespace Noopad;
 public partial class App : Application
 {
     public static IReadOnlyList<string> StartupArgs { get; set; } = Array.Empty<string>();
+    public static SingleInstanceCoordinator? SingleInstanceCoordinator { get; set; }
 
     public override void Initialize()
     {
