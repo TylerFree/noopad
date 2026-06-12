@@ -11,40 +11,45 @@ public sealed class SingleInstanceCoordinator : IDisposable
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
-    private readonly string _semaphoreName;
+    private readonly string _lockFilePath;
     private readonly string _pipeName;
-    private Semaphore? _semaphore;
+    private FileStream? _lockFile;
     private CancellationTokenSource? _serverCancellation;
     private Task? _serverTask;
-    private bool _ownsSemaphore;
 
     public SingleInstanceCoordinator(string instanceName = "noopad")
     {
         var safeName = Regex.Replace(instanceName, "[^A-Za-z0-9_.-]", "-");
-        _semaphoreName = $@"Local\{safeName}-single-instance";
+        var lockDirectory = Path.Combine(Path.GetTempPath(), "noopad");
+        _lockFilePath = Path.Combine(lockDirectory, $"{safeName}-single-instance.lock");
         _pipeName = $"{safeName}-single-instance";
     }
 
     public bool TryBecomePrimary()
     {
-        if (_ownsSemaphore)
+        if (_lockFile != null)
             return true;
 
-        _semaphore = new Semaphore(initialCount: 1, maximumCount: 1, _semaphoreName);
-        if (_semaphore.WaitOne(millisecondsTimeout: 0))
+        Directory.CreateDirectory(Path.GetDirectoryName(_lockFilePath)!);
+
+        try
         {
-            _ownsSemaphore = true;
+            _lockFile = new FileStream(
+                _lockFilePath,
+                FileMode.OpenOrCreate,
+                FileAccess.ReadWrite,
+                FileShare.None);
             return true;
         }
-
-        _semaphore.Dispose();
-        _semaphore = null;
-        return false;
+        catch (IOException)
+        {
+            return false;
+        }
     }
 
     public void StartServer(Func<IReadOnlyList<string>, Task> handleLaunchRequest)
     {
-        if (!_ownsSemaphore)
+        if (_lockFile == null)
             throw new InvalidOperationException("Only the primary instance can start the single-instance server.");
 
         if (_serverTask != null)
@@ -148,12 +153,8 @@ public sealed class SingleInstanceCoordinator : IDisposable
         _serverCancellation = null;
         _serverTask = null;
 
-        if (_ownsSemaphore && _semaphore != null)
-            _semaphore.Release();
-
-        _semaphore?.Dispose();
-        _semaphore = null;
-        _ownsSemaphore = false;
+        _lockFile?.Dispose();
+        _lockFile = null;
     }
 }
 
